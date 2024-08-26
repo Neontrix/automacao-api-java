@@ -1,6 +1,7 @@
 .allure
 .gradle
 .env
+.env.example
 schema
 build
 target

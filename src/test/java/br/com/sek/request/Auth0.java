@@ -1,5 +1,6 @@
 package br.com.sek.request;
 
+import br.com.sek.helpers.RequestBase;
 import br.com.sek.models.request.ClientDetails;
 import io.restassured.response.Response;
 
@@ -19,6 +20,7 @@ public class Auth0 extends RequestBase {
                 .username(System.getenv("AUTH_USERNAME"))
                 .password(System.getenv("AUTH_PASSWORD"))
                 .grant_type(System.getenv("AUTH_GRAND_TYPE"))
+                .realm(System.getenv("REALM"))
                 .build());
     }
 

@@ -1,6 +1,7 @@
 package br.com.sek.testContext;
 
 import br.com.sek.models.request.*;
+import br.com.sek.models.response.SignUpResponse;
 import br.com.sek.models.response.Token;
 import br.com.sek.request.Auth0;
 import br.com.sek.request.PlatformSek;
@@ -8,6 +9,7 @@ import br.com.sek.utils.mass.SignUp;
 import io.restassured.response.Response;
 import lombok.Getter;
 import org.apache.commons.lang3.NotImplementedException;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -30,11 +32,18 @@ public class TestContext {
         this.signUp = signUp;
     }
 
-    public void GenerateToken() {
+//    public void GenerateToken() {
+//        if(token == null)
+//            token = this.auth0.OAuthToken().as(Token.class);
+//
+//        this.platformSek.setToken(token.getId_token());
+//    }
+
+    public void setHeaders(String organizationCode) {
         if(token == null)
             token = this.auth0.OAuthToken().as(Token.class);
 
-        this.platformSek.setToken(token.getId_token());
+        this.platformSek.setHeaders(token.getId_token(), organizationCode);
     }
 
     public void ListActions() {
@@ -104,5 +113,17 @@ public class TestContext {
             throw new NotImplementedException();
         }
         step("After removed field: ".concat(this.user.toString()));
+    }
+
+    public void validateSignUp(Response response, User user){
+        Assertions.assertEquals(201, response.statusCode(), "Status Code");
+
+        SignUpResponse objResponse = response.as(SignUpResponse.class);
+
+        Assertions.assertEquals(user.getName(), objResponse.getName(), "Name");
+        Assertions.assertEquals(user.getEmail(), objResponse.getEmail(), "E-mail");
+        Assertions.assertEquals(user.getCompany(), objResponse.getCompany(), "Company");
+        Assertions.assertEquals(user.getPhone().toString(), objResponse.getPhone(), "Phone");
+        step("All fields were successfully validated");
     }
 }

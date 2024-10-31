@@ -1,10 +1,9 @@
 package br.com.sek.steps;
 
 import br.com.sek.models.response.AdminActions;
-import br.com.sek.services.Validation;
+import br.com.sek.helpers.Assertions;
 import br.com.sek.testContext.TestContext;
 import com.google.gson.Gson;
-import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -15,16 +14,21 @@ import static io.qameta.allure.Allure.step;
 
 public class PlatformSteps {
     private final TestContext testContext;
-    private final Validation validation;
+    private final Assertions validation;
 
-    public PlatformSteps(TestContext testContext, Validation validation) {
+    public PlatformSteps(TestContext testContext, Assertions assertions) {
         this.testContext = testContext;
-        this.validation = validation;
+        this.validation = assertions;
     }
 
-    @Given("I have access to the platform")
-    public void iHaveAccessToThePlatform() {
-        this.testContext.GenerateToken();
+//    @Given("I have access to the platform")
+//    public void iHaveAccessToThePlatform() {
+//        this.testContext.GenerateToken();
+//    }
+
+    @Given("I have access to the platform through organization code {string}")
+    public void iHaveAccessToThePlatformThroughOrganizationCode(String organizationCode) {
+        this.testContext.setHeaders(organizationCode);
     }
 
     @When("I query the data")
@@ -38,7 +42,7 @@ public class PlatformSteps {
 
         AdminActions[] test = new Gson().fromJson(resp.body().print(), AdminActions[].class);
 
-        this.validation.validateIsTrue(test.length > 0);
+        this.validation.assertIsTrue(test.length > 0);
         step("Profiles successfully validated");
     }
 
@@ -49,7 +53,7 @@ public class PlatformSteps {
 
     @Then("I see the error message {string} and status code {string}")
     public void iSeeTheErrorMessageAndStatusCode(String error, String statusCode) {
-        this.validation.validateMessageErrorAndStatusCode(testContext.getResponse(), "detail", error, statusCode);
+        this.validation.assertMessageErrorAndStatusCode(testContext.getResponse(), "detail", error, statusCode);
     }
 
     @Given("I have a user to sign up")
@@ -64,7 +68,7 @@ public class PlatformSteps {
 
     @Then("I see the successful signup registration")
     public void iSeeTheSuccessfulSignupRegistration() {
-        this.validation.validateSignUp(this.testContext.getResponse(), this.testContext.getUser());
+        testContext.validateSignUp(this.testContext.getResponse(), this.testContext.getUser());
     }
 
     @Given("I remove the field {string}")
@@ -75,9 +79,9 @@ public class PlatformSteps {
     @Then("I see the error message of field {string}")
     public void iSeeTheErrorMessageOfField(String field) {
         Response response = this.testContext.getResponse();
-        this.validation.validateResponseStatusCode(response, "400");
-        this.validation.validateContainsMessageError(response, "message","Invalid request. Please check your input parameters.");
-        this.validation.validateContainsMessageError(response, "fields[0]",field);
+        this.validation.assertResponseStatusCode(response, "400");
+        this.validation.assertContainsMessageError(response, "message","Invalid request. Please check your input parameters.");
+        this.validation.assertContainsMessageError(response, "fields[0]",field);
     }
 
     @Given("I set the field {string} to blank")

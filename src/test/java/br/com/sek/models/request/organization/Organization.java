@@ -3,33 +3,23 @@ package br.com.sek.models.request.organization;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
+import java.util.UUID;
 
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
+@ToString
 
 public class Organization {
+    private UUID id;
     private String name;
+    private Integer industry;
     private String code;
-    private Boolean mfaRequired;
-    private List<Members> members;
+    private String countryCode;
     private List<Products> products;
     private List<Bindings> bindings;
     private List<AcceptDomains> acceptDomains;
-
-    @Override
-    public String toString() {
-        return "Product{" +
-                "name: '" + name + '\'' +
-                ", code: '" + code + '\'' +
-                ", mfaRequired:'" + mfaRequired + '\'' +
-                ", members: " + members +
-                ", products: " + products +
-                ", bindings: " + bindings +
-                ", acceptDomains: " + acceptDomains +
-                '}';
-    }
-
 }

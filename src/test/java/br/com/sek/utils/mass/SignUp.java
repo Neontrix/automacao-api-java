@@ -2,12 +2,17 @@ package br.com.sek.utils.mass;
 
 import br.com.sek.models.request.*;
 import br.com.sek.models.request.product.Product;
+import br.com.sek.models.response.SignUpResponse;
+import io.restassured.response.Response;
 import net.datafaker.Faker;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+
+import static io.qameta.allure.Allure.step;
 
 public class SignUp {
 
@@ -85,4 +90,15 @@ public class SignUp {
                 .build();
     }
 
+    public void validateSignUp(Response response, User user){
+        Assertions.assertEquals(201, response.statusCode(), "Status Code");
+
+        SignUpResponse objResponse = response.as(SignUpResponse.class);
+
+        Assertions.assertEquals(user.getName(), objResponse.getName(), "Name");
+        Assertions.assertEquals(user.getEmail(), objResponse.getEmail(), "E-mail");
+        Assertions.assertEquals(user.getCompany(), objResponse.getCompany(), "Company");
+        Assertions.assertEquals(user.getPhone().toString(), objResponse.getPhone(), "Phone");
+        step("All fields were successfully validated");
+    }
 }

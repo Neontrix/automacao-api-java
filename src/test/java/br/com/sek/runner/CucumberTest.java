@@ -14,7 +14,7 @@ import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
         value = "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "br.com.sek.steps")
 @ConfigurationParameter(key = SNIPPET_TYPE_PROPERTY_NAME, value = "camelcase")
-@IncludeTags("organization01")
-//@IncludeTags({"organization01", "organization02"})
+//@IncludeTags({"update_product1"})
+@IncludeTags({"createProducts", "searchProducts", "updateProducts"})
 public class CucumberTest {
 }

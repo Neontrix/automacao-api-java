@@ -13,4 +13,5 @@ public class ClientDetails {
     private String username;
     private String password;
     private String grant_type;
+    private String realm;
 }

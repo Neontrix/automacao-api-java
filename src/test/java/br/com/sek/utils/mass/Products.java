@@ -1,6 +1,6 @@
 package br.com.sek.utils.mass;
 
-import br.com.sek.models.messages.Messages;
+import br.com.sek.models.exceptions.Messages;
 import br.com.sek.models.request.product.Addon;
 import br.com.sek.models.request.product.Product;
 import io.restassured.response.Response;
@@ -8,10 +8,10 @@ import lombok.Setter;
 import net.datafaker.Faker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import static org.hamcrest.Matchers.hasItem;
+import java.util.stream.Collectors;
 
 public class Products {
     @Setter
@@ -24,15 +24,17 @@ public class Products {
         this.product = generateFullProduct();
     }
 
+
     private Product generateFullProduct() {
-        String name = faker.name().fullName();
-        String code = faker.code().isbn10();
-        String description = faker.lorem().paragraph(3);
+        //String name = faker.name().fullName().replaceAll("\\.","");
+        String name = faker.name().fullName().replaceAll("[^\\p{ASCII}]", "").replaceAll("\\.", "");
+        String code = faker.code().isbn10().concat("X");
+        String description = faker.lorem().paragraph(1);
         List<Addon> addons = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             Addon addon = Addon.builder()
                     .name(faker.commerce().productName())
-                    .description(faker.lorem().sentence(5))
+                    .description(faker.lorem().sentence(1))
                     .build();
             addons.add(addon);
         }
@@ -45,9 +47,9 @@ public class Products {
     }
 
     public Product generateUpdateRequestWithFaker() {
-        String name = faker.name().fullName();
-        String code = faker.code().isbn10();
-        String description = faker.lorem().paragraph(3);
+        String name = faker.name().fullName().replaceAll("[^\\p{ASCII}]", "").replaceAll("\\.", "");
+        String code = faker.code().isbn10().concat("X");
+        String description = faker.lorem().paragraph(1);
         List<Addon> addons = new ArrayList<>();
 
         return Product.builder()
@@ -58,9 +60,10 @@ public class Products {
                 .build();
     }
 
-    public Product getProducts(String addonType){
+/*    public Product getProducts(String addonType){
         if ("with".equals(addonType)) {
             return Product.builder()
+                    .id(product.getId())
                     .name(product.getName())
                     .code(product.getCode())
                     .description(product.getDescription())
@@ -68,6 +71,7 @@ public class Products {
                     .build();
         }else if ("without".equals(addonType)) {
             return Product.builder()
+                    .id(product.getId())
                     .name(product.getName())
                     .code(product.getCode())
                     .description(product.getDescription())
@@ -76,83 +80,97 @@ public class Products {
         }else {
             throw new IllegalArgumentException("Invalid addon type: " + addonType);
         }
+    }*/
+
+    public Product getProducts(String addonType){
+        return "with".equals(addonType) ? product :
+            Product.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .code(product.getCode())
+                    .description(product.getDescription())
+                    .addons(Collections.emptyList())
+                    .build();
     }
 
-    public Product getProductsWithoutField(String field){
+/*    public Product getAddons(String addonType){
+        return "with".equals(addonType) ? product :
+                Product.builder()
+                        .addons(Collections.emptyList())
+                        .build();
+    }*/
+
+    public List<Addon> getAddons(String addonType) {
+        // Se o tipo for 'with', retorna a lista de addons existentes
+        if ("with".equals(addonType)) {
+            return product.getAddons().stream()
+                    .map(addon -> Addon.builder()
+                            .name(addon.getName())
+                            .description(addon.getDescription())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+
+        // Caso contrário, retorna uma lista vazia
+        return Collections.emptyList();
+    }
+
+    public Product getProductsWithoutField(String field) {
+        Product.ProductBuilder builder = Product.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .code(product.getCode())
+                .description(product.getDescription())
+                .addons(product.getAddons());
+
         switch (field) {
             case "name":
-                return Product.builder()
-                        .code(product.getCode())
-                        .description(product.getDescription())
-                        .addons(product.getAddons())
-                        .build();
+                builder.name(null);
+                break;
             case "code":
-                return Product.builder()
-                        .name(product.getName())
-                        .description(product.getDescription())
-                        .addons(product.getAddons())
-                        .build();
+                builder.code(null);
+                break;
             case "description":
-                return Product.builder()
-                        .name(product.getName())
-                        .code(product.getCode())
-                        .addons(product.getAddons())
-                        .build();
+                builder.description(null);
+                break;
             case "addons":
-                return Product.builder()
-                        .name(product.getName())
-                        .code(product.getCode())
-                        .description(product.getDescription())
-                        .build();
+                builder.addons(null);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown field: " + field);
         }
+
+        return builder.build();
     }
 
-    public Product getProductsWithEmptyField(String field){
+
+    public Product getProductsWithEmptyField(String field) {
+        Product.ProductBuilder builder = Product.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .code(product.getCode())
+                .description(product.getDescription())
+                .addons(product.getAddons());
+
         switch (field) {
             case "name":
-                return Product.builder()
-                        .name("")
-                        .code(product.getCode())
-                        .description(product.getDescription())
-                        .addons(product.getAddons())
-                        .build();
+                builder.name("");
+                break;
             case "code":
-                return Product.builder()
-                        .name(product.getName())
-                        .code("")
-                        .description(product.getDescription())
-                        .addons(product.getAddons())
-                        .build();
+                builder.code("");
+                break;
             default:
-                throw new IllegalArgumentException(Messages.errorMessages.uknownField + field);
+                throw new IllegalArgumentException(Messages.errorMessages.unknownField + field);
         }
+
+        return builder.build();
     }
 
-    public void verifyErrorFieldsDisplayed(String field){
-        if (response == null) {
-            throw new IllegalStateException(Messages.errorMessages.responseNotSet);
-        }
-
-        int actualStatusCode = response.getStatusCode();
-        if (actualStatusCode != 400) {
-            throw new AssertionError(Messages.errorMessages.expected400 + actualStatusCode);
-        }
-
-        String actualCategory = response.jsonPath().getString("category");
-        if (!"BAD_REQUEST".equals(actualCategory)) {
-            throw new AssertionError(Messages.errorMessages.expectedBadRequest + actualCategory + "'");
-        }
-
-        // Verifica se o campo esperado está presente na lista de campos de erro
-        response.then().body("fields", hasItem(field));
-    }
 
     public Product generateUpdateFieldToOmit(String fieldToOmit) {
-        String name = faker.name().fullName();
-        String code = faker.code().isbn10();
-        String description = faker.lorem().paragraph(3);
+        String name = faker.name().fullName().replaceAll("[^\\p{ASCII}]", "").replaceAll("\\.", "");
+        String code = faker.code().isbn10().concat("X");
+        String description = faker.lorem().paragraph(1);
         List<Addon> addons = new ArrayList<>();
 
         Product.ProductBuilder builder = Product.builder();

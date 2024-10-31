@@ -3,12 +3,16 @@ package br.com.sek.models.request.product;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 @Getter
 @Setter
+@ToString
+
 public class Product {
     private String id;
     private List<String> features;
@@ -18,14 +22,5 @@ public class Product {
     private String description;
     private List<Addon> addons;
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "name: '" + name + '\'' +
-                ", code: '" + code + '\'' +
-                ", description:'" + description + '\'' +
-                ", addons: " + addons +
-                '}';
-    }
 }
 

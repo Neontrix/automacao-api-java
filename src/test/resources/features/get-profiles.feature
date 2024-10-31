@@ -6,13 +6,13 @@ Feature: SEK Platform Get Profiles
 
   @tc01
   Scenario: List actions for a specific profile
-    Given I have access to the platform
+    Given I have access to the platform through organization code "SEK-BR"
     When I query the data
     Then I see the scope and types for each profile
 
   @tc02
   Scenario Outline: Verify error message for requests with incorrect/invalid user
-    Given I have access to the platform
+    Given I have access to the platform through "organizationCode"
     When I query the data with user "<User>"
     Then I see the error message "<Message>" and status code "<StatusCode>"
 

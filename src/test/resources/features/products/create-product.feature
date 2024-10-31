@@ -2,28 +2,30 @@
 #@allure.label.owner:thiago.marques
 #@allure.label.url:/products
 @createProducts
+@all
 Feature: SEK Platform Create Product
 
   Background:
-    Given I have access to the platform
+    Given I have access to the platform through organization code "SEK-BR"
 
-  @product01
+  @smoke
+  @create_product_without_addon
   Scenario: Create one product without addons
     Given I want to generate a product "without" addons
-    When I send product request
+    When I send request to create product
     Then the product is created successfully
 
-  @product02
+  @create_product_with_addons
   Scenario: Create product with addons
     Given I want to generate a product "with" addons
-    When I send product request
+    When I send request to create product
     Then the product is created successfully
 
-  @product03
+  @product_not_inform_field
   Scenario Outline: Create product and do not inform the "Field"
     Given I want to generate a product without the "<Field>"
-    When I send product request
-    Then an error message is displayed indicating that the "<Field>" is required
+    When I send a invalid request to create product
+    Then an error message is displayed indicating that the "<Field>" product is required
 
     Examples:
       | Field           |
@@ -32,11 +34,11 @@ Feature: SEK Platform Create Product
       | description     |
       | addons          |
 
-  @product04
+  @product_empty_field
   Scenario Outline: Create product and enter empty "Field"
     Given I want to generate a product with the empty "<Field>"
-    When I send product request
-    Then an error message is displayed indicating that the "<Field>" cannot be empty
+    When I send a invalid request to create product
+    Then an error message is displayed indicating that the "<Field>" product cannot be empty
 
     Examples:
       | Field           |
